@@ -3,68 +3,253 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- <link rel="stylesheet" type="text/css" href="styles.css"> -->
+  <link rel="stylesheet" type="text/css" href="styles.css">
   <title>Document</title>
 
   <style>
     * {
-      border: 5px solid black;
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
       padding: 0;
+      background-color: #ccc;
     }
 
     div.container {
       display: grid;
-      grid-template-rows: auto 1fr;
+      grid-template-rows: 70px 1fr;
       width: 100%;
       height: 100vh;
+      transition-duration: 1s;
     }
       .container > div {
         display: flex;
-        padding: 5px;
       }
 
     .header {
       align-items: center;
       justify-content: center;
+      width: 100%;
+      padding: 5px;
+      background-color: #fafafa;
+      transition-duration: 0.6s;
+      z-index: 2;
     }
       .header > h1 {
         font-size: 20px;
       }
 
-    section {
+    .section {
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;      
+      justify-content: flex-start;
+      gap: 20px;
+      padding: 20px;
+      overflow-y: auto; 
+    }
+      .item {
+        display: grid;
+        position: relative;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "item-header"
+          "item-image"
+          "item-content";
+        gap: 5px;
+        padding: 10px;
+        width: 400px;
+        height: 300px;
+        border-radius: 5px;
+        background-color: rgb(255, 255, 255);
+        transition-duration: 0.3s;
+      }
+        .item:hover {
+          transform: scale(1.1);
+          z-index: 99;
+        }
+        .item-header {
+          grid-area: item-header;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          flex-wrap: nowrap;
+          gap: 5px;
+          width: 100%;
+        }
+          .item-header-title {
+            font-size: 1.2em;
+            font-weight: 700;
+          }
+          .item-header-number {
+            font-size: 14px;
+            color: #666;
+          }
+        .item-image {
+          grid-area: item-image;
+          border-radius: 5px;
+          overflow: hidden;
+        }
+          .item-image > img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        .item-content {
+          grid-area: item-content;
+          padding: 5px;
+          text-align: justify;
+        }
+          .item-content-text {
+            font-size: 14px;
+            line-height: 1.5;
+          }
+    
+    .section::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+      background-color: #ccc;
+      border-radius: 5px;
+    }
+    .section::-webkit-scrollbar-thumb {
+      background-color: #fafafa;
+      border-radius: 5px;
+    }
+    .section::-webkit-scrollbar-thumb:hover {
+      background-color: #aaa;
+    }
+    .hidden {
+      transform: translateY(-10em);
+    }
+    .hidden-box {
+      grid-template-rows: 0px 1fr !important;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
+  <div class="container" id="container">
+    <div class="header" id="header-container">
       <h1>Breathe Code Photo Feed</h1>
     </div>
-    <div class="section">
-      <div class="item">
-        <div class="item-header">
-          <div class="item-header-title"></div>
-          <div class="item-header-number"></div>
-        </div>
-        <div class="item-image">
-          <img src="" alt="" class="item-image-img">
-        </div>
-        <div class="item-content">
-          <span class="item-content-text"></span>
-        </div>
-      </div>
+    <div class="section" id="section-container">
+    <!-- My project -->
     </div>
   </div>
 
   <script>
+    const container = document.querySelector("#container")
+    const header = document.querySelector("#header-container")
+    const section = document.querySelector("#section-container")
+    const infiniteScroll = true
+    let lastScrollTop = 0
+    let data = {}
+    
+    // functions
+    const getData = async () => {
+      const data = await fetch("./data.json")
+      const jsonData = await data.json()
+  
+      return {
+        images: jsonData.images,
+        titles: jsonData.titles,
+        texts: jsonData.texts
+      }
+    }
+
+    const createItem = (url, title, id, text) => {
+      const img = document.createElement("img")
+      let error = false
+      img.src = url
+      img.classList.add("item-image-img")
+
+      img.onload = function() {
+        const container = document.querySelector("#section-container")
+        const item = document.createElement("div")
+        const itemHeader = document.createElement("div")
+        const itemHeaderTitle = document.createElement("div")
+        const itemHeaderNumber = document.createElement("div")
+        const itemImage = document.createElement("div")
+        const itemContent = document.createElement("div")
+        const itemContentText = document.createElement("span")
+
+        // add content
+        itemHeaderTitle.textContent = title
+        itemHeaderNumber.textContent = id
+        itemContentText.textContent = text
+
+        // add classes
+        item.classList.add("item")
+        itemHeader.classList.add("item-header")
+        itemHeaderTitle.classList.add("item-header-title")
+        itemHeaderNumber.classList.add("item-header-number")
+        itemImage.classList.add("item-image")
+        itemContent.classList.add("item-content")
+        itemContentText.classList.add("item-content-text")
+
+        // append content
+        itemHeader.appendChild(itemHeaderTitle)
+        itemHeader.appendChild(itemHeaderNumber)
+        itemImage.appendChild(img)
+        itemContent.appendChild(itemContentText)
+
+        item.appendChild(itemHeader)
+        item.appendChild(itemImage)
+        item.appendChild(itemContent)
+
+        container.appendChild(item)
+      }
+      
+    }
+  
+    const generateHTML = ({images, titles, texts}) => {
+      const titleMax = titles.length
+      const textMax = texts.length
+      const randomNumber = Math.floor(Math.random() * 3)
+
+      if(titleMax && textMax) {
+        images.forEach((url) => {
+          createItem(
+            url = url,
+            title = titles[Math.floor(Math.random() * titleMax)],
+            id = "12/14",
+            text = texts[Math.floor(Math.random() * textMax)]
+          )
+        })
+      }
+    }
+
+    // listeners
+    document.addEventListener("DOMContentLoaded", async function() {
+      try {
+        // generateHTML((await getData()))
+        data = await getData()
+        generateHTML(data)
+      } catch (error) {
+        console.log(error)
+      }
+    })
+    section.addEventListener("scroll", () => {
+      if (section.scrollTop > lastScrollTop) {
+        header.classList.add("hidden")
+        container.classList.add("hidden-box")
+      } else {
+        header.classList.remove("hidden")
+        container.classList.remove("hidden-box")
+      }
+
+      if (section.scrollTop + section.clientHeight >= section.scrollHeight && infiniteScroll) {
+        generateHTML(data)
+      }
+      lastScrollTop = section.scrollTop
+    })
+    header.addEventListener("scroll", () => {
+      if (header.scrollTop > 0) {
+        header.classList.remove("hidden")
+        container.classList.remove("hidden-box")
+      }
+    })
+    
   </script>
 </body>
 </html>

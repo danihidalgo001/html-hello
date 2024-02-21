@@ -1,0 +1,17 @@
+{
+  "images": [
+    "./imgs/img_1.jpg",
+    "./imgs/img_2.jpg",
+    "./imgs/img_3.jpg"
+  ],
+  "titles": [
+    "Facilisi cras fermentum odio eu feugiat pretium nibh ipsum consequat.",
+    "A cras semper auctor neque vitae tempus quam pellentesque nec.",
+    "Lacinia quis vel eros donec ac."
+  ],
+  "texts": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. At erat pellentesque adipiscing commodo elit.",
+    "Diam maecenas sed enim ut sem viverra aliquet eget sit amet tellus cras adipiscing enim eu turpis egestas pretium aenean pharetra magna ac placerat vestibulum lectus mauris ultrices eros in.",
+    "Neque viverra justo nec ultrices dui sapien eget mi proin sed libero enim sed faucibus turpis in eu mi bibendum neque egestas congue quisque egestas diam in arcu cursus euismod."
+  ]
+}
